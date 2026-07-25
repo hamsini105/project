@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-canvas: #f3f6fb;
+  --bg-surface: #ffffff;
+  --bg-muted: #f7f9fd;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-soft: #e2e8f0;
+  --brand-500: #2563eb;
+  --brand-600: #1d4ed8;
+  --success-500: #16a34a;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --shadow-hover: 0 14px 40px rgba(15, 23, 42, 0.12);
+}
+
+html,
+body,
+[data-testid='stAppViewContainer'],
+[data-testid='stSidebar'],
+[data-testid='stMarkdownContainer'] {
+  font-family: 'Inter', sans-serif;
+}
+
+[data-testid='stAppViewContainer'] {
+  background:
+    radial-gradient(circle at 14% 10%, rgba(37, 99, 235, 0.1), transparent 26%),
+    radial-gradient(circle at 90% 16%, rgba(14, 116, 144, 0.08), transparent 24%),
+    var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+[data-testid='stHeader'],
+#MainMenu,
+footer {
+  visibility: hidden;
+  height: 0;
+}
+
+[data-testid='collapsedControl'] {
+  display: none;
+}
+
+.block-container {
+  max-width: 1440px;
+  padding: 1.4rem 1.6rem 1.8rem;
+}
+
+p {
+  margin: 0;
+}
+
+.fade-in-up {
+  animation: fade-in-up 440ms ease-out;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
