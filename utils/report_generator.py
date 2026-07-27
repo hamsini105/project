@@ -21,7 +21,35 @@ from utils.formatters import format_date, format_experience, format_score
 
 logger = logging.getLogger(__name__)
 
-# ── Column configuration for exports ─────────────────────────────────────────
+
+def _sanitize_text(text: Any) -> str:
+    """
+    Sanitize text for PDF output by replacing problematic Unicode characters.
+    
+    Converts special characters that fpdf2 fonts may not support into 
+    readable ASCII equivalents.
+    """
+    if not isinstance(text, str):
+        text = str(text) if text is not None else ""
+    
+    # Replace common problematic Unicode characters
+    replacements = {
+        "—": "-",      # em-dash
+        "–": "-",      # en-dash
+        "'": "'",      # curly quotes
+        "'": "'",
+        """: '"',      # curly double quotes
+        """: '"',
+        "•": "•",      # bullet (should work with DejaVu)
+        "…": "...",    # ellipsis
+    }
+    
+    for original, replacement in replacements.items():
+        text = text.replace(original, replacement)
+    
+    return text.strip()
+
+
 
 _CSV_COLUMNS = [
     "id", "name", "email", "phone", "role", "status",
@@ -116,15 +144,15 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     pdf.add_page()
 
     # ── Header ────────────────────────────────────────────────────────────────
-    pdf.set_font("Helvetica", style="B", size=18)
+    pdf.set_font("DejaVu", style="B", size=18)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, _sanitize_text(title), new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_font("Helvetica", size=9)
+    pdf.set_font("DejaVu", size=9)
     pdf.set_text_color(100, 116, 139)
     pdf.cell(
         0, 6,
-        f"Generated {date.today().strftime('%B %d, %Y')}  ·  {len(df)} candidates  ·  {generated_by}",
+        _sanitize_text(f"Generated {date.today().strftime('%B %d, %Y')}  ·  {len(df)} candidates  ·  {generated_by}"),
         new_x="LMARGIN", new_y="NEXT",
     )
     pdf.ln(4)
@@ -132,10 +160,10 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     # ── Summary bar ──────────────────────────────────────────────────────────
     if len(df) > 0:
         avg_score = df["ats_score"].mean() if "ats_score" in df.columns else 0
-        pdf.set_font("Helvetica", style="B", size=10)
+        pdf.set_font("DejaVu", style="B", size=10)
         pdf.set_text_color(15, 23, 42)
         pdf.cell(0, 7, "Summary", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_font("Helvetica", size=9)
+        pdf.set_font("DejaVu", size=9)
         pdf.set_text_color(71, 85, 105)
         pdf.cell(0, 5, f"Total candidates: {len(df)}", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(0, 5, f"Average ATS score: {avg_score:.1f}", new_x="LMARGIN", new_y="NEXT")
@@ -155,7 +183,7 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     ]
 
     # Header row
-    pdf.set_font("Helvetica", style="B", size=8)
+    pdf.set_font("DejaVu", style="B", size=8)
     pdf.set_fill_color(241, 245, 249)
     pdf.set_text_color(15, 23, 42)
     for label, _, width, align in columns:
@@ -163,7 +191,7 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     pdf.ln()
 
     # Data rows
-    pdf.set_font("Helvetica", size=8)
+    pdf.set_font("DejaVu", size=8)
     for _, row in df.head(200).iterrows():
         fill = False
         pdf.set_fill_color(248, 250, 252)
@@ -177,14 +205,14 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
             elif col_key == "applied_date" and pd.notna(val):
                 text = pd.Timestamp(val).strftime("%b %d, %Y") if val else ""
             else:
-                text = str(val)[:32] if val else ""
+                text = _sanitize_text(str(val)[:32] if val else "")
             pdf.cell(width, 6, text, border="B", align=align, fill=fill)
         pdf.ln()
 
     # ── Footer ────────────────────────────────────────────────────────────────
     pdf.set_y(-14)
-    pdf.set_font("Helvetica", size=7)
+    pdf.set_font("DejaVu", size=7)
     pdf.set_text_color(148, 163, 184)
-    pdf.cell(0, 6, f"Confidential · {generated_by}", align="C")
+    pdf.cell(0, 6, _sanitize_text(f"Confidential · {generated_by}"), align="C")
 
     return pdf
