@@ -1,8 +1,27 @@
-"""Frontend entrypoint for the Resume Parser System dashboard."""
+"""Frontend entrypoint for the Resume Parser System dashboard.
+
+Centralised logging and settings are initialised here — before any other
+module-level code that calls ``logging.getLogger()`` — so all loggers
+inherit the configuration established at startup.
+"""
 
 from pathlib import Path
 
-import streamlit as st
+# ── Initialise logging before remaining imports ───────────────────────────────
+from core.logging_setup import configure_logging
+from core.settings import get_settings as _get_settings
+
+_settings = _get_settings()
+configure_logging(
+    level=_settings.log_level,
+    format_type=_settings.log_format,
+    log_file=_settings.log_file,
+    max_bytes=_settings.log_max_bytes,
+    backup_count=_settings.log_backup_count,
+)
+# ─────────────────────────────────────────────────────────────────────────────
+
+import streamlit as st  # noqa: E402
 
 from components.footer import render_footer
 from components.navbar import render_navbar

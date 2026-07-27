@@ -1,0 +1,54 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# IDE artefacts
+.vscode/
+.idea/
+*.sublime-project
+.DS_Store
+Thumbs.db
+
+# Test output
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type-checker cache
+.mypy_cache/
+.ruff_cache/
+
+# Build artefacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+/tmp/resume_parser/
+
+# Model weights (large binaries — downloaded at build/runtime)
+.cache/
+models/
+
+# Jupyter
+.ipynb_checkpoints/

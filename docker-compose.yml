@@ -1,0 +1,61 @@
+services:
+
+  # ── Development ─────────────────────────────────────────────────────────────
+  # Hot-reload mount: source changes are reflected immediately.
+  # Start with: docker compose up app
+  app:
+    build:
+      context: .
+      target: development
+    image: resume-parser-system:dev
+    container_name: resume-parser-dev
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app                   # live code reload
+      - model-cache:/root/.cache # persist downloaded model weights
+    environment:
+      ENVIRONMENT: development
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+      LOG_FORMAT: text
+      MAX_UPLOAD_SIZE_MB: "10"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: "no"
+
+  # ── Production ──────────────────────────────────────────────────────────────
+  # Start with: docker compose --profile production up app-prod
+  app-prod:
+    build:
+      context: .
+      target: production
+    image: resume-parser-system:latest
+    container_name: resume-parser-prod
+    ports:
+      - "8501:8501"
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      LOG_FORMAT: json
+      SERVER_HEADLESS: "true"
+      SERVER_ENABLE_XSRF: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  # Named volume to persist sentence-transformers model cache across
+  # container restarts in the development workflow.
+  model-cache:

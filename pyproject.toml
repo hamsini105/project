@@ -1,0 +1,151 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "resume-parser-system"
+version = "1.0.0"
+description = "Production-grade resume parsing, ATS analysis, and job-matching platform"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["resume", "parser", "ats", "recruiting", "nlp", "streamlit"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Scheduling",
+]
+
+dependencies = [
+    "streamlit>=1.40.0,<2.0.0",
+    "PyMuPDF>=1.23.8",
+    "python-docx>=0.8.11",
+    "pydantic>=2.0.0",
+    "pydantic[email]>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "colorlog>=6.7.0",
+    "python-json-logger>=2.0.0",
+    "sentence-transformers>=2.6.0",
+    "numpy>=1.24.0",
+    "plotly>=5.18.0",
+    "pandas>=2.0.0",
+    "fpdf2>=2.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.12.0",
+    "black>=24.0.0",
+    "ruff>=0.3.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+    "pandas-stubs>=2.0.0",
+]
+
+# ── Hatch build config (flat layout — no src/) ────────────────────────────────
+[tool.hatch.build.targets.wheel]
+packages = ["parser", "ats", "job_matching", "components", "pages", "utils", "core"]
+
+# ── Pytest ────────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths        = ["tests"]
+pythonpath       = ["."]
+addopts          = "-v --tb=short"
+python_files     = ["test_*.py"]
+python_classes   = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings   = [
+    "ignore::DeprecationWarning:pydantic.*:",
+    "ignore::DeprecationWarning:streamlit.*:",
+]
+
+[tool.coverage.run]
+source  = ["."]
+omit    = [
+    "tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    ".venv/*",
+    "docs/*",
+]
+
+[tool.coverage.report]
+show_missing   = true
+skip_covered   = false
+fail_under     = 60
+exclude_lines  = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+]
+
+# ── Black ─────────────────────────────────────────────────────────────────────
+[tool.black]
+line-length    = 100
+target-version = ["py310", "py311", "py312"]
+include        = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git | \.venv | build | dist | __pycache__
+)/
+'''
+
+# ── Ruff ──────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length    = 100
+target-version = "py310"
+exclude        = [".git", ".venv", "build", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "C4",   # flake8-comprehensions
+    "RET",  # flake8-return
+]
+ignore = [
+    "E501",   # line length (handled by Black)
+    "B008",   # function calls in argument defaults (Pydantic patterns)
+    "UP007",  # use X | Y for unions (requires Python 3.10+, keep Optional for clarity)
+    "RET504", # unnecessary assignment before return
+    "SIM117", # use single with statement (readability preference)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "parser", "ats", "job_matching",
+    "components", "pages", "utils", "core",
+]
+split-on-trailing-comma = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*"     = ["S101"]  # assert statements are fine in tests
+"app.py"      = ["E402"]  # module-level import not at top of file (logging init first)
+
+# ── mypy ──────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version         = "3.10"
+ignore_missing_imports = true
+warn_unused_configs    = true
+no_implicit_optional   = true
+check_untyped_defs     = true
+# Strict checks disabled to avoid noise on existing code — enable incrementally
+disallow_untyped_defs  = false
+warn_return_any        = false
+# Per-module overrides
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+ignore_errors = true

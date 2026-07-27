@@ -76,7 +76,16 @@ class ExperienceCalculator:
         """
         for level, (min_years, max_years) in EXPERIENCE_RANGES.items():
             if min_years <= years < max_years:
-                level_display = level.replace("_", " ").title()
+                # Map config keys to model pattern values
+                level_map = {
+                    "entry_level": "Entry",
+                    "junior": "Junior",
+                    "mid_level": "Mid",
+                    "senior": "Senior",
+                    "lead": "Lead",
+                    "executive": "Executive",
+                }
+                level_display = level_map.get(level, level)
                 logger.debug(f"Experience level for {years} years: {level_display}")
                 return level_display
 

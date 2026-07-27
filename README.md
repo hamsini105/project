@@ -1,8 +1,100 @@
-# Resume Parser System - Frontend Foundation
+# Resume Parser System
 
-Production-ready Streamlit frontend scaffold for a recruiter dashboard. This repository intentionally contains only UI foundation and design system architecture.
+A production-grade platform for parsing resumes, scoring ATS compatibility, matching candidates to job descriptions with semantic embeddings, and surfacing insights through an interactive recruiter dashboard.
 
-## Scope
+## Features
+
+| Module | Description |
+|---|---|
+| **Parser** | Extracts structured data from PDF/DOCX into a typed Pydantic schema |
+| **ATS Engine** | Scores resumes across 9 weighted categories with explainable recommendations |
+| **Job Matching** | Semantic similarity matching using Sentence Transformers |
+| **Recruiter Dashboard** | Interactive Streamlit UI with charts, filters, and CSV/PDF export |
+
+## Quick Start
+
+```bash
+git clone https://github.com/hamsini105/project.git && cd project
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env
+streamlit run app.py
+```
+
+Open **http://localhost:8501** in your browser.
+
+## Docker
+
+```bash
+# Development (live reload)
+docker compose up app
+
+# Production
+docker compose --profile production up app-prod
+```
+
+## Project Structure
+
+```
+├── app.py                    # Streamlit entry point
+├── core/                     # Deployment infrastructure
+│   ├── settings.py           # Pydantic Settings (env var management)
+│   └── logging_setup.py      # Structured logging (text + JSON)
+├── parser/                   # Resume parsing engine
+├── ats/                      # ATS analysis and scoring
+├── job_matching/             # Semantic job matching
+├── components/               # Reusable Streamlit UI components
+├── pages/                    # Dashboard page modules
+├── utils/                    # Shared utilities
+├── tests/                    # pytest test suite (unit + integration)
+├── docs/                     # Architecture and deployment docs
+├── Dockerfile                # Multi-stage production image
+├── docker-compose.yml        # Dev and production services
+└── pyproject.toml            # Tool configuration (Black, Ruff, mypy, pytest)
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env`.  All variables have safe defaults for local development.
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENVIRONMENT` | `development` | `development` / `staging` / `production` |
+| `LOG_LEVEL` | `INFO` | `DEBUG` / `INFO` / `WARNING` / `ERROR` |
+| `LOG_FORMAT` | `text` | `text` (human) or `json` (for log aggregators) |
+| `MAX_UPLOAD_SIZE_MB` | `10` | Resume upload size limit |
+| `EMBEDDING_MODEL_NAME` | `all-MiniLM-L6-v2` | Sentence Transformers model |
+| `SERVER_PORT` | `8501` | Streamlit server port |
+
+See `.env.example` for the full list.
+
+## Development
+
+```bash
+pip install -r requirements-dev.txt
+pre-commit install
+pytest tests/ -v
+ruff check . && black .
+```
+
+## Testing
+
+```bash
+pytest tests/unit/        -v          # no ML deps required
+pytest tests/integration/ -v          # embedding engine is mocked
+pytest tests/ --cov --cov-report=html # with coverage
+```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+
+## License
+
+MIT
 
 Included:
 - Modular frontend architecture
@@ -82,3 +174,4 @@ streamlit run app.py
 1. Add lightweight client-side state for filters and date ranges.
 2. Introduce chart rendering layer (frontend-only placeholder replacement).
 3. Add visual regression checks for key breakpoints.
+

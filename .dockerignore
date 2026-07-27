@@ -1,0 +1,60 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env/
+
+# Environment files (never commit real secrets)
+.env
+.env.local
+.env.*.local
+
+# IDE and editor artefacts
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Build artefacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+/tmp/resume_parser/
+
+# Sentence-transformers / HuggingFace model cache
+# (large binary files — download at build or runtime)
+.cache/
+models/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS artefacts
+.DS_Store
+.AppleDouble
+.LSOverride

@@ -39,7 +39,7 @@ class Strength(BaseModel):
     category: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     impact: str = Field(
-        ..., description="High, Medium, or Low impact", regex="^(High|Medium|Low)$"
+        ..., description="High, Medium, or Low impact", pattern="^(High|Medium|Low)$"
     )
 
     class Config:
@@ -58,7 +58,7 @@ class Weakness(BaseModel):
     category: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     severity: str = Field(
-        ..., description="Critical, High, Medium, or Low", regex="^(Critical|High|Medium|Low)$"
+        ..., description="Critical, High, Medium, or Low", pattern="^(Critical|High|Medium|Low)$"
     )
 
     class Config:
@@ -77,7 +77,7 @@ class Recommendation(BaseModel):
     action: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=1)
     priority: str = Field(
-        ..., description="Critical, High, Medium, or Low", regex="^(Critical|High|Medium|Low)$"
+        ..., description="Critical, High, Medium, or Low", pattern="^(Critical|High|Medium|Low)$"
     )
     estimated_score_improvement: float = Field(
         default=0, ge=0, le=100, description="Estimated % improvement in ATS score"
@@ -106,7 +106,7 @@ class ATSReport(BaseModel):
     score_rating: str = Field(
         ...,
         description="Rating category",
-        regex="^(Excellent|Good|Fair|Poor)$",
+        pattern="^(Excellent|Good|Fair|Poor)$",
     )
     score_breakdown: ScoreBreakdown = Field(..., description="Score by category")
     completeness_percentage: float = Field(
@@ -116,7 +116,7 @@ class ATSReport(BaseModel):
     experience_level: str = Field(
         ...,
         description="Experience level",
-        regex="^(Entry|Junior|Mid|Senior|Lead|Executive)$",
+        pattern="^(Entry|Junior|Mid|Senior|Lead|Executive)$",
     )
     strengths: List[Strength] = Field(default_factory=list, description="Identified strengths")
     weaknesses: List[Weakness] = Field(default_factory=list, description="Identified weaknesses")

@@ -65,11 +65,11 @@ JD_SECTION_HEADERS: Dict[str, List[str]] = {
 # ── Experience Extraction Patterns ───────────────────────────────────────────
 # Ordered from most-specific to least-specific.
 EXPERIENCE_REGEX_PATTERNS: List[str] = [
-    r"(\d+)\+\s*years?\s+(?:of\s+)?(?:relevant\s+)?(?:professional\s+)?experience",
-    r"(\d+)\s*[-\u2013]\s*(\d+)\s*years?\s+(?:of\s+)?experience",
-    r"minimum\s+(?:of\s+)?(\d+)\s+years?",
-    r"at\s+least\s+(\d+)\s+years?",
-    r"(\d+)\s*years?\s+(?:of\s+)?(?:relevant\s+)?experience",
+    r"(\d+)\s*[-\u2013]\s*(\d+)\s*years?\s+(?:of\s+)?experience",  # Range: "3-5 years"
+    r"(\d+)\+\s*years?",                                           # Minimum: "5+ years" (flexible)
+    r"minimum\s+(?:of\s+)?(\d+)\s+years?",                        # Explicit minimum
+    r"at\s+least\s+(\d+)\s+years?",                               # At least
+    r"(\d+)\s*years?\s+(?:of\s+)?(?:relevant\s+)?experience",     # Generic "X years of experience"
 ]
 
 # ── Education ─────────────────────────────────────────────────────────────────

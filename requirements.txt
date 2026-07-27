@@ -5,10 +5,12 @@ PyMuPDF>=1.23.8
 python-docx>=0.8.11
 pydantic>=2.0.0
 pydantic[email]>=2.0.0
+pydantic-settings>=2.0.0
 python-dotenv>=1.0.0
 
 # Logging and utilities
 colorlog>=6.7.0
+python-json-logger>=2.0.0
 
 # Job Matching Dependencies
 sentence-transformers>=2.6.0
