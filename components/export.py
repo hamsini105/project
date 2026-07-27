@@ -67,12 +67,13 @@ def render_pdf_export(
     """
     try:
         pdf_bytes = to_pdf(df, title=title)
-    except ImportError:
-        st.warning("PDF export requires fpdf2. Run: `pip install fpdf2`")
+    except ImportError as exc:
+        st.warning("⚠️ PDF export requires fpdf2. Install with: `pip install fpdf2`")
+        logger.warning("fpdf2 not installed: %s", exc)
         return
     except Exception as exc:
-        logger.error("PDF generation failed: %s", exc)
-        st.error("PDF export is currently unavailable.")
+        logger.error("PDF generation failed: %s", exc, exc_info=True)
+        st.error(f"PDF export error: {type(exc).__name__}: {str(exc)[:100]}")
         return
 
     st.download_button(
