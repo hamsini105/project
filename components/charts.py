@@ -68,11 +68,10 @@ def pipeline_funnel(df: pd.DataFrame) -> go.Figure:
         ),
         opacity=0.88,
     ))
-    fig.update_layout(
-        **_BASE_LAYOUT,
-        height=260,
-        margin=dict(l=0, r=0, t=4, b=0),
-    )
+    layout = dict(_BASE_LAYOUT)
+    layout["height"] = 260
+    layout["margin"] = dict(l=0, r=0, t=4, b=0)
+    fig.update_layout(**layout)
     return fig
 
 
@@ -103,19 +102,18 @@ def status_donut(df: pd.DataFrame) -> go.Figure:
         textinfo="none",
         hovertemplate="%{label}: <b>%{value}</b> (%{percent})<extra></extra>",
     ))
-    fig.update_layout(
-        **_BASE_LAYOUT,
-        showlegend=True,
-        legend=dict(
-            orientation="v",
-            x=1.0,
-            y=0.5,
-            font_size=11,
-            itemclick=False,
-        ),
-        height=220,
-        margin=dict(l=0, r=80, t=4, b=0),
+    layout = dict(_BASE_LAYOUT)
+    layout["showlegend"] = True
+    layout["legend"] = dict(
+        orientation="v",
+        x=1.0,
+        y=0.5,
+        font_size=11,
+        itemclick=False,
     )
+    layout["height"] = 220
+    layout["margin"] = dict(l=0, r=80, t=4, b=0)
+    fig.update_layout(**layout)
     return fig
 
 
