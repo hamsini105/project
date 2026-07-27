@@ -4,10 +4,12 @@ import streamlit as st
 
 
 def render_navbar() -> None:
-    """Render the dashboard top navigation shell."""
-    st.markdown(
-        """
-        <nav class="top-nav fade-in-up">
+    """Render the dashboard top navigation shell with functional buttons."""
+    col_brand, col_actions = st.columns([2, 1])
+    
+    with col_brand:
+        st.markdown(
+            """
             <div class="brand-group">
                 <span class="brand-badge">RP</span>
                 <div>
@@ -15,11 +17,17 @@ def render_navbar() -> None:
                     <p class="brand-subtitle">Recruiter intelligence workspace</p>
                 </div>
             </div>
-            <div class="nav-actions">
-                <button class="nav-button">Invite Team</button>
-                <button class="nav-button nav-button-primary">Upload Resumes</button>
-            </div>
-        </nav>
-        """,
-        unsafe_allow_html=True,
-    )
+            """,
+            unsafe_allow_html=True,
+        )
+    
+    with col_actions:
+        col_invite, col_upload = st.columns(2)
+        
+        with col_invite:
+            if st.button("👥 Invite Team", use_container_width=True):
+                st.info("Team invitation feature coming soon!")
+        
+        with col_upload:
+            if st.button("📤 Upload Resumes", use_container_width=True):
+                st.session_state.show_upload = True

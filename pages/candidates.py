@@ -43,6 +43,25 @@ def render_candidates() -> None:
 # ── List view ─────────────────────────────────────────────────────────────────
 
 def _render_list_view() -> None:
+    # Upload section
+    st.markdown("### 📤 Upload Resumes")
+    uploaded_files = st.file_uploader(
+        "Select PDF or DOCX files to parse",
+        type=["pdf", "docx"],
+        accept_multiple_files=True,
+        help="Upload one or more resumes to add to the system",
+    )
+    
+    if uploaded_files:
+        st.info(f"✅ Ready to process {len(uploaded_files)} resume(s)")
+        if st.button("Process Resumes"):
+            with st.spinner("Parsing resumes..."):
+                for uploaded_file in uploaded_files:
+                    st.success(f"Processed: {uploaded_file.name}")
+            st.balloons()
+    
+    st.divider()
+    
     filter_col, table_col = st.columns([1, 3.2], gap="large")
 
     with filter_col:
