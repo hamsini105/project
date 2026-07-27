@@ -144,11 +144,11 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     pdf.add_page()
 
     # ── Header ────────────────────────────────────────────────────────────────
-    pdf.set_font("DejaVu", style="B", size=18)
+    pdf.set_font("Times", style="B", size=18)
     pdf.set_text_color(15, 23, 42)
     pdf.cell(0, 10, _sanitize_text(title), new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_font("DejaVu", size=9)
+    pdf.set_font("Times", size=9)
     pdf.set_text_color(100, 116, 139)
     pdf.cell(
         0, 6,
@@ -160,10 +160,10 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     # ── Summary bar ──────────────────────────────────────────────────────────
     if len(df) > 0:
         avg_score = df["ats_score"].mean() if "ats_score" in df.columns else 0
-        pdf.set_font("DejaVu", style="B", size=10)
+        pdf.set_font("Times", style="B", size=10)
         pdf.set_text_color(15, 23, 42)
         pdf.cell(0, 7, "Summary", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_font("DejaVu", size=9)
+        pdf.set_font("Times", size=9)
         pdf.set_text_color(71, 85, 105)
         pdf.cell(0, 5, f"Total candidates: {len(df)}", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(0, 5, f"Average ATS score: {avg_score:.1f}", new_x="LMARGIN", new_y="NEXT")
@@ -183,7 +183,7 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     ]
 
     # Header row
-    pdf.set_font("DejaVu", style="B", size=8)
+    pdf.set_font("Times", style="B", size=8)
     pdf.set_fill_color(241, 245, 249)
     pdf.set_text_color(15, 23, 42)
     for label, _, width, align in columns:
@@ -191,7 +191,7 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
     pdf.ln()
 
     # Data rows
-    pdf.set_font("DejaVu", size=8)
+    pdf.set_font("Times", size=8)
     for _, row in df.head(200).iterrows():
         fill = False
         pdf.set_fill_color(248, 250, 252)
@@ -211,7 +211,7 @@ def _build_pdf(df: pd.DataFrame, title: str, generated_by: str) -> "FPDF":  # ty
 
     # ── Footer ────────────────────────────────────────────────────────────────
     pdf.set_y(-14)
-    pdf.set_font("DejaVu", size=7)
+    pdf.set_font("Times", size=7)
     pdf.set_text_color(148, 163, 184)
     pdf.cell(0, 6, _sanitize_text(f"Confidential · {generated_by}"), align="C")
 
