@@ -13,3 +13,8 @@ colorlog>=6.7.0
 # Job Matching Dependencies
 sentence-transformers>=2.6.0
 numpy>=1.24.0
+
+# Recruiter Dashboard Dependencies
+plotly>=5.18.0
+pandas>=2.0.0
+fpdf2>=2.7.0

@@ -1,154 +1,160 @@
-"""Recruiter-facing dashboard page."""
+"""
+Overview tab — main Recruiter Dashboard page.
 
-from typing import Final
+Replaced placeholder charts with real Plotly visuals backed by CandidateService.
+"""
+
+from __future__ import annotations
 
 import streamlit as st
 
+from components.charts import (
+    applications_trend,
+    pipeline_funnel,
+    skills_bar,
+    status_donut,
+)
 from components.footer import render_footer
 from components.metric_cards import MetricCardData, render_metric_cards
 from components.navbar import render_navbar
 from components.section_header import render_section_header
 from components.sidebar import render_sidebar
+from utils.data_service import CandidateService
+from utils.formatters import format_number, format_percent
 from utils.logger import get_logger
 
 LOGGER = get_logger(__name__)
+_service = CandidateService()
+_CHART_CONFIG = {"displayModeBar": False, "responsive": True}
 
-RECENT_UPLOAD_ROWS: Final[list[tuple[str, str, str, str]]] = [
-    ("Senior Python Engineer", "uploaded 18 min ago", "42 files", "In review"),
-    ("Product Designer", "uploaded 1 hr ago", "27 files", "Queued"),
-    ("Talent Operations Lead", "uploaded 3 hrs ago", "13 files", "Completed"),
-    ("Data Platform Manager", "uploaded yesterday", "35 files", "In review"),
-]
 
-ACTIVITY_ITEMS: Final[list[str]] = [
+_ACTIVITY_ITEMS = [
     "Nina Patel moved 8 candidates into shortlist.",
-    "Batch upload completed for Product Designer role.",
-    "Recruiting Ops exported weekly candidate pipeline report.",
+    "Batch upload completed for Senior Python Engineer role.",
+    "Recruiting Ops exported the Q3 candidate pipeline report.",
     "Team comment added on Data Platform Manager intake.",
+    "ATS scoring complete for 27 new Machine Learning Engineer applications.",
+    "Final Round interviews scheduled for 5 Frontend Engineer candidates.",
 ]
 
 
-def _render_recent_uploads() -> None:
-    """Render a realistic recent uploads table with placeholder values."""
-    rows_html = "".join(
-        f"""
-        <tr>
-            <td>{role}</td>
-            <td>{timestamp}</td>
-            <td>{volume}</td>
-            <td><span class='status-pill'>{status}</span></td>
-        </tr>
-        """
-        for role, timestamp, volume, status in RECENT_UPLOAD_ROWS
-    )
+def _render_kpi_cards() -> None:
+    kpi = _service.get_kpi_summary()
+    render_metric_cards([
+        MetricCardData(
+            "Total Candidates",
+            format_number(kpi["total_candidates"]),
+            f"{kpi['active_roles']} active roles",
+            "up",
+        ),
+        MetricCardData(
+            "Avg ATS Score",
+            str(kpi["avg_ats_score"]),
+            "Across all pipeline stages",
+            "neutral",
+        ),
+        MetricCardData(
+            "Hired This Month",
+            format_number(kpi["hired_this_month"]),
+            f"Rejection rate: {format_percent(kpi['rejection_rate'])}",
+            "up",
+        ),
+        MetricCardData(
+            "Pending Screening",
+            format_number(kpi["pending_review"]),
+            "Awaiting first review",
+            "neutral",
+        ),
+    ])
 
+
+def _render_pipeline_funnel() -> None:
+    stages_df = _service.get_pipeline_stages()
     st.markdown(
-        f"""
+        """
         <section class="panel-card fade-in-up">
             <div class="panel-card-header">
-                <h3>Recent Uploads</h3>
-                <p>Latest recruiter activity from resume intake queues</p>
+                <h3>Hiring Funnel</h3>
+                <p>Candidate volume through each pipeline stage</p>
             </div>
-            <table class="uploads-table">
-                <thead>
-                    <tr>
-                        <th>Role</th>
-                        <th>Uploaded</th>
-                        <th>Volume</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows_html}
-                </tbody>
-            </table>
-        </section>
         """,
         unsafe_allow_html=True,
     )
+    if not stages_df.empty:
+        st.plotly_chart(pipeline_funnel(stages_df), use_container_width=True, config=_CHART_CONFIG)
+    st.markdown("</section>", unsafe_allow_html=True)
+
+
+def _render_status_donut() -> None:
+    status_df = _service.get_status_distribution()
+    st.markdown(
+        """
+        <section class="panel-card fade-in-up">
+            <div class="panel-card-header">
+                <h3>Status Distribution</h3>
+                <p>Current snapshot of pipeline stage breakdown</p>
+            </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if not status_df.empty:
+        st.plotly_chart(status_donut(status_df), use_container_width=True, config=_CHART_CONFIG)
+    st.markdown("</section>", unsafe_allow_html=True)
+
+
+def _render_skills_and_trend() -> None:
+    skills_left, trend_right = st.columns(2, gap="medium")
+    with skills_left:
+        skills_df = _service.get_skills_frequency(top_n=12)
+        st.markdown(
+            """
+            <section class="panel-card fade-in-up">
+                <div class="panel-card-header">
+                    <h3>Top Skills in Pipeline</h3>
+                    <p>Most-common skills across active candidates</p>
+                </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if not skills_df.empty:
+            st.plotly_chart(
+                skills_bar(skills_df.sort_values("count")),
+                use_container_width=True, config=_CHART_CONFIG,
+            )
+        st.markdown("</section>", unsafe_allow_html=True)
+
+    with trend_right:
+        weekly_df = _service.get_applications_over_time()
+        st.markdown(
+            """
+            <section class="panel-card fade-in-up">
+                <div class="panel-card-header">
+                    <h3>Application Volume</h3>
+                    <p>Weekly intake over the last 6 months</p>
+                </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if not weekly_df.empty:
+            st.plotly_chart(
+                applications_trend(weekly_df),
+                use_container_width=True, config=_CHART_CONFIG,
+            )
+        st.markdown("</section>", unsafe_allow_html=True)
 
 
 def _render_activity_feed() -> None:
-    """Render timeline-style activity feed placeholders."""
-    items_html = "".join(f"<li>{item}</li>" for item in ACTIVITY_ITEMS)
-
+    items_html = "".join(f"<li>{item}</li>" for item in _ACTIVITY_ITEMS)
     st.markdown(
         f"""
         <section class="panel-card fade-in-up">
             <div class="panel-card-header">
-                <h3>Activity</h3>
+                <h3>Recent Activity</h3>
                 <p>Team operations over the last 24 hours</p>
             </div>
             <ul class="activity-feed">
                 {items_html}
             </ul>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def _render_analytics_placeholders() -> None:
-    """Render non-functional analytics placeholders for future integration."""
-    st.markdown(
-        """
-        <section class="analytics-grid">
-            <article class="panel-card fade-in-up">
-                <div class="panel-card-header">
-                    <h3>Upload Velocity</h3>
-                    <p>Weekly resume intake trend</p>
-                </div>
-                <div class="chart-placeholder">
-                    <span>Chart placeholder</span>
-                </div>
-            </article>
-            <article class="panel-card fade-in-up">
-                <div class="panel-card-header">
-                    <h3>Team Throughput</h3>
-                    <p>Candidate review completion rate</p>
-                </div>
-                <div class="chart-placeholder">
-                    <span>Chart placeholder</span>
-                </div>
-            </article>
-            <article class="panel-card fade-in-up">
-                <div class="panel-card-header">
-                    <h3>Pipeline Health</h3>
-                    <p>Status distribution snapshot</p>
-                </div>
-                <div class="chart-placeholder">
-                    <span>Chart placeholder</span>
-                </div>
-            </article>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def _render_quick_actions() -> None:
-    """Render quick action placeholders in a reusable card style."""
-    st.markdown(
-        """
-        <section class="panel-card fade-in-up">
-            <div class="panel-card-header">
-                <h3>Quick Actions</h3>
-                <p>Shortcuts for common recruiter workflows</p>
-            </div>
-            <div class="quick-actions-grid">
-                <div class="quick-action-item">
-                    <h4>Create Candidate Batch</h4>
-                    <p>Prepare a new intake group for an open role.</p>
-                </div>
-                <div class="quick-action-item">
-                    <h4>Assign Reviewer</h4>
-                    <p>Allocate team ownership for incoming resumes.</p>
-                </div>
-                <div class="quick-action-item">
-                    <h4>Schedule Weekly Sync</h4>
-                    <p>Coordinate hiring standup with recruiting partners.</p>
-                </div>
-            </div>
         </section>
         """,
         unsafe_allow_html=True,
@@ -168,24 +174,16 @@ def render_dashboard() -> None:
         render_navbar()
         render_section_header(
             title="Hiring Command Center",
-            description="Track hiring pipeline activity with a polished frontend-ready interface.",
+            description="Live pipeline metrics, candidate analytics, and team activity.",
         )
+        _render_kpi_cards()
 
-        render_metric_cards(
-            [
-                MetricCardData("Resumes Ingested", "1,284", "+8.6% vs last week", "up"),
-                MetricCardData("Open Roles", "24", "+2 this week", "up"),
-                MetricCardData("Avg Review Time", "2.4 days", "-11% cycle time", "up"),
-                MetricCardData("Pending Reviews", "317", "Stable this week", "neutral"),
-            ]
-        )
+        chart_left, chart_right = st.columns(2, gap="medium")
+        with chart_left:
+            _render_pipeline_funnel()
+        with chart_right:
+            _render_status_donut()
 
-        content_left, content_right = st.columns([1.7, 1.3], gap="large")
-        with content_left:
-            _render_recent_uploads()
-        with content_right:
-            _render_activity_feed()
-
-        _render_analytics_placeholders()
-        _render_quick_actions()
+        _render_skills_and_trend()
+        _render_activity_feed()
         render_footer()
